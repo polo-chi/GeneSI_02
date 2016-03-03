@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -35,7 +36,6 @@ public class MainActivity extends Activity
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private CharSequence mTitle;
 
-    private static final String KEY_NAME_COMPONENT = "name_component";
     private static final String KEY_NAME_ELEMENT = "name_element";
     private static final String KEY_IMAGE_ID = "image_id";
 
@@ -43,10 +43,8 @@ public class MainActivity extends Activity
     protected Button Button2;
     protected Button Button3;
     protected Button Button4;
-    protected AlertDialog alertDialog;
     protected AlertDialog alertDialog2;
     protected AlertDialog alertDialog3;
-    protected AlertDialog alertDialog4;
     protected ArrayAdapter<String> adapter;
     protected ArrayAdapter<String> adapter2;
     protected ArrayAdapter<String> adapter3;
@@ -134,10 +132,8 @@ public class MainActivity extends Activity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice);
         adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice);
         adapter3 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice);
-        adapter4 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice);
 
         final List<Element> elementList = new ArrayList<Element>(ELEMENT_LIST);
 
@@ -164,13 +160,14 @@ public class MainActivity extends Activity
         Button3 = (Button) findViewById(R.id.button3);
         Button4 = (Button) findViewById(R.id.button4);
 
-        /*Button.setOnClickListener(new View.OnClickListener() // 追加ボタンを押した時の処理
+        Button.setOnClickListener(new View.OnClickListener() // 追加ボタンを押した時の処理
         {
             @Override
             public void onClick(View v)
             {
-                System.out.print("a");
-
+                Intent intent = new Intent();
+                intent.setClassName("hoge.test", "hoge.test.AddElement");
+                startActivity(intent);
             }
         });
 
@@ -199,7 +196,7 @@ public class MainActivity extends Activity
             {
 
             }
-        });*/
+        });
 
         listView1.setOnItemClickListener(new AdapterView.OnItemClickListener() // リスト要素選択時の処理
         {
@@ -229,24 +226,11 @@ public class MainActivity extends Activity
     private Map<String, ?> elementListToMap(Element colorItem) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(KEY_IMAGE_ID, Integer.valueOf(colorItem.getImageID()));
-        map.put(KEY_NAME_COMPONENT, colorItem.getNameComponent());
         map.put(KEY_NAME_ELEMENT, colorItem.getNameElement());
 
         return map;
     }
 
-    // onClickListner : リスナーをクリックしたときの動作。AlertDaialogを表示
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            // AlertDialogで選択肢を表示
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle("どれを追加しますか");
-            builder.setSingleChoiceItems(adapter, selectedIndex, onDialogClickListener);
-            alertDialog = builder.create();
-            alertDialog.show();
-        }
-    };
 
     private View.OnClickListener onClickListener2 = new View.OnClickListener() {
         @Override
@@ -270,28 +254,6 @@ public class MainActivity extends Activity
         }
     };
 
-    private View.OnClickListener onClickListener4 = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            AlertDialog.Builder builder4 = new AlertDialog.Builder(MainActivity.this);
-            builder4.setTitle("表示するコンポーネント");
-            builder4.setSingleChoiceItems(adapter4, selectedIndex4, onDialogClickListener4);
-            alertDialog4 = builder4.create();
-            alertDialog4.show();
-        }
-    };
-
-    // onDialogClickListner : アラートダイアログで選択された内容を保持
-    private DialogInterface.OnClickListener onDialogClickListener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            // AlertDialogで選択された内容を保持
-            selectedIndex = which;
-            Button.setText(adapter.getItem(which));
-            alertDialog.dismiss();
-        }
-    };
-
     private DialogInterface.OnClickListener onDialogClickListener2 = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
@@ -309,16 +271,6 @@ public class MainActivity extends Activity
             selectedIndex3 = which;
             Button3.setText(adapter3.getItem(which));
             alertDialog3.dismiss();
-        }
-    };
-
-    private DialogInterface.OnClickListener onDialogClickListener4 = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            // AlertDialogで選択された内容を保持
-            selectedIndex4 = which;
-            Button4.setText(adapter4.getItem(which));
-            alertDialog4.dismiss();
         }
     };
 
@@ -349,6 +301,24 @@ public class MainActivity extends Activity
         fragmentManager.beginTransaction()
                 .replace(R.id.container, DrawerActivity.PlaceholderFragment.newInstance(position + 1))
                 .commit();
+
+        Intent intent2 = new Intent();
+        System.out.println(position);
+
+        switch (position)
+        {
+            case 0:
+                System.out.println(position);
+                break;
+            case 1:
+                intent2.setClassName("hoge.test", "hoge.test.DetailElement");
+                startActivity(intent2);
+                break;
+            case 2:
+                intent2.setClassName("hoge.test", "hoge.test.ProducePass");
+                startActivity(intent2);
+                break;
+        }
     }
 
     public void onSectionAttached(int number) {
