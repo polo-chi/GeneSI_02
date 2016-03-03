@@ -20,6 +20,10 @@
             android:name=".DrawerActivity"
             android:label="@string/title_activity_drawer" >
         </activity>
+        <activity
+            android:name="AddElement"
+            android:label="@string/title_activity_addelement">
+        </activity>
     </application>
     <uses-permission android:name="android.permission.INTERNET"/>
 
