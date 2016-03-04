@@ -13,9 +13,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +32,8 @@ public class DetailElement extends Activity
 
     private static final String KEY_NAME_ELEMENT = "name_element";
     private static final String KEY_IMAGE_ID = "image_id";
+
+    private String plusmid;
 
     protected Button Button;
 
@@ -78,12 +82,48 @@ public class DetailElement extends Activity
         listView1.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         listView1.setItemChecked(0, true);
 
+        // アダプタの生成(選択済のアイテムを表示するレイアウトを指定)
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item);
+        // ドロップダウンリストのアイテム表示レイアウトを指定
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // リスト内の要素を配列指定
+        String[] items = new String[] { "pUASP", "pBSSK-", "pBSSK+", "pCMV2"};
+        // アダプタに要素を追加
+        for (String item : items) {
+            adapter.add(item);
+        }
+        // Spinnerオブジェクト生成
+        final Spinner spinner2 = (Spinner)findViewById(R.id.spinner2);
+        // SpinnerにAdapterをセット
+        spinner2.setAdapter(adapter);
+        // 選択する要素位置の指定
+        spinner2.setSelection(0);
+
         Button btnDrawPlasmid = (Button)findViewById(R.id.button5);
 
         //プラスミドマップを描くボタンを押した時の処理
         btnDrawPlasmid.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                String select_plus = (String)spinner2.getSelectedItem();
+
+                if(select_plus== "pUASP")
+                {
+                    plusmid = "puasp";
+                }
+                else if(select_plus == "pBSSK-")
+                {
+                    plusmid = "pbssk_minus";
+                }
+                else if(select_plus == "pBSSK+")
+                {
+                    plusmid = "pbssk_plus";
+                }
+                else
+                {
+                    plusmid = "pcmv2";
+                }
 
                 AsyncDB addInsertDB = new AsyncDB();
                 String insertData = null;
