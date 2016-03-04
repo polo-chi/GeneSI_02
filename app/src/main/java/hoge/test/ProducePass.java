@@ -9,7 +9,6 @@ import java.util.List;
 
 public class ProducePass extends Activity
 {
-    private static final String KEY_NAME_COMPONENT = "name_component";
     private static final String KEY_NAME_ELEMENT = "name_element";
     private static final String KEY_IMAGE_ID = "image_id";
 
@@ -28,14 +27,10 @@ public class ProducePass extends Activity
 
     private static final List<Element> ELEMENT_LIST = new ArrayList<Element>();
 
-    static
-    {
-        ELEMENT_LIST.add(new Element(R.drawable.arrow, "A", "AB"));
-        ELEMENT_LIST.add(new Element(R.drawable.terminater, "A", "CD"));
-        ELEMENT_LIST.add(new Element(R.drawable.terminater, "B", "EF"));
-        ELEMENT_LIST.add(new Element(R.drawable.promoter, "C", "GH"));
-        ELEMENT_LIST.add(new Element(R.drawable.arrow, "C", "IJ"));
-        ELEMENT_LIST.add(new Element(R.drawable.terminater, "C", "KL"));
+    static {
+        ELEMENT_LIST.add(new Element("Promoter", "promoter", "", 1));
+        ELEMENT_LIST.add(new Element("CDS", "cds", "", 2));
+        ELEMENT_LIST.add(new Element("Terminator", "terminator", "", 3));
     }
 
     @Override

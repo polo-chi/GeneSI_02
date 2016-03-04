@@ -46,13 +46,9 @@ public class MainActivity extends Activity
     protected AlertDialog alertDialog2;
     protected AlertDialog alertDialog3;
     protected ArrayAdapter<String> adapter;
-    protected ArrayAdapter<String> adapter2;
     protected ArrayAdapter<String> adapter3;
-    protected ArrayAdapter<String> adapter4;
-    protected int selectedIndex = 0;
     protected int selectedIndex2 = 0;
     protected int selectedIndex3 = 0;
-    protected int selectedIndex4 = 0;
 
     private static final String[] FROM = new String[]
             {
@@ -67,10 +63,11 @@ public class MainActivity extends Activity
     private static final List<Element> ELEMENT_LIST = new ArrayList<Element>();
 
     static {
-        ELEMENT_LIST.add(new Element(R.drawable.promoter, "Promoter A", "Promoter"));
-        ELEMENT_LIST.add(new Element(R.drawable.arrow, "C", "CDS"));
-        ELEMENT_LIST.add(new Element(R.drawable.terminater, "C", "Terminator"));
+        ELEMENT_LIST.add(new Element("Promoter", "promoter", "", 1));
+        ELEMENT_LIST.add(new Element("CDS", "cds", "", 2));
+        ELEMENT_LIST.add(new Element("Terminator", "terminator", "", 3));
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,26 +100,7 @@ public class MainActivity extends Activity
         // SpinnerにAdapterをセット
         spinner.setAdapter(adapter);
         // 選択する要素位置の指定
-        spinner.setSelection(0);
-
-// アダプタの生成(選択済のアイテムを表示するレイアウトを指定)
-        ArrayAdapter<String> adapte2r = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item);
-        // ドロップダウンリストのアイテム表示レイアウトを指定
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // リスト内の要素を配列指定
-        String[] items2 = new String[] { "pUASP", "pBSSK-", "pBSSK+", "pCMV2"};
-        // アダプタに要素を追加
-        for (String item : items) {
-            adapter.add(item);
-        }
-        // Spinnerオブジェクト生成
-       Spinner spinner2 = (Spinner)findViewById(R.id.spinner2);
-        // SpinnerにAdapterをセット
-        spinner.setAdapter(adapter);
-        // 選択する要素位置の指定
         spinner.setSelection(0);*/
-
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -132,7 +110,7 @@ public class MainActivity extends Activity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice);
         adapter3 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice);
 
         final List<Element> elementList = new ArrayList<Element>(ELEMENT_LIST);
@@ -149,11 +127,14 @@ public class MainActivity extends Activity
         listView1.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         listView1.setItemChecked(0, true);
 
-
-        /*adapter3.add("要素A");
-        adapter3.add("要素B");
-        adapter3.add("要素C");
-        adapter3.add("要素D");*/
+        int i = 0, end = ELEMENT_LIST.size();
+        Element add;
+        for(i =0; i < end; i++)
+        {
+            add = ELEMENT_LIST.get(i);
+            adapter.add(add.getNameElement());
+            adapter3.add(add.getNameElement());
+        }
 
         Button = (Button) findViewById(R.id.button);
         Button2 = (Button) findViewById(R.id.button2);
@@ -171,12 +152,16 @@ public class MainActivity extends Activity
             }
         });
 
-        Button2.setOnClickListener(new View.OnClickListener() //　入れ替えボタンを押した時の処理
+        Button2.setOnClickListener(new View.OnClickListener() //　編集ボタンを押した時の処理
         {
             @Override
             public void onClick(View v)
             {
-
+                AlertDialog.Builder builder2 = new AlertDialog.Builder(MainActivity.this);
+                builder2.setTitle("");
+                builder2.setSingleChoiceItems(adapter, selectedIndex2, onDialogClickListener2);
+                alertDialog2 = builder2.create();
+                alertDialog2.show();
             }
         });
 
@@ -185,11 +170,15 @@ public class MainActivity extends Activity
             @Override
             public void onClick(View v)
             {
-
+                AlertDialog.Builder builder3 = new AlertDialog.Builder(MainActivity.this);
+                builder3.setTitle("");
+                builder3.setSingleChoiceItems(adapter, selectedIndex3, onDialogClickListener3);
+                alertDialog3 = builder3.create();
+                alertDialog3.show();
             }
         });
 
-        Button4.setOnClickListener(new View.OnClickListener() //
+        Button4.setOnClickListener(new View.OnClickListener() // 入れ替えボタン
         {
             @Override
             public void onClick(View v)
@@ -231,35 +220,12 @@ public class MainActivity extends Activity
         return map;
     }
 
-
-    private View.OnClickListener onClickListener2 = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            AlertDialog.Builder builder2 = new AlertDialog.Builder(MainActivity.this);
-            builder2.setTitle("");
-            builder2.setSingleChoiceItems(adapter2, selectedIndex2, onDialogClickListener2);
-            alertDialog2 = builder2.create();
-            alertDialog2.show();
-        }
-    };
-
-    private View.OnClickListener onClickListener3 = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            AlertDialog.Builder builder3 = new AlertDialog.Builder(MainActivity.this);
-            builder3.setTitle("どれを削除しますか");
-            builder3.setSingleChoiceItems(adapter3, selectedIndex3, onDialogClickListener3);
-            alertDialog3 = builder3.create();
-            alertDialog3.show();
-        }
-    };
-
     private DialogInterface.OnClickListener onDialogClickListener2 = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             // AlertDialogで選択された内容を保持
             selectedIndex2 = which;
-            Button2.setText(adapter2.getItem(which));
+            Button2.setText(adapter.getItem(which));
             alertDialog2.dismiss();
         }
     };
@@ -269,7 +235,7 @@ public class MainActivity extends Activity
         public void onClick(DialogInterface dialog, int which) {
             // AlertDialogで選択された内容を保持
             selectedIndex3 = which;
-            Button3.setText(adapter3.getItem(which));
+            Button3.setText(adapter.getItem(which));
             alertDialog3.dismiss();
         }
     };
