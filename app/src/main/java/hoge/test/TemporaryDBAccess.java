@@ -21,7 +21,7 @@ public class TemporaryDBAccess {
 
 
     //要素の保存
-    public void save_item(TemporaryRecordItemDb item){
+    public TemporaryRecordItemDb save_item(TemporaryRecordItemDb item){
         SQLiteDatabase db = helper.getWritableDatabase();
         TemporaryRecordItemDb result = null;
 
@@ -63,9 +63,9 @@ public class TemporaryDBAccess {
     public void delete_item(TemporaryRecordItemDb item) {
         SQLiteDatabase db = helper.getWritableDatabase();
         try {
-            db.delete( TemporaryRecordItemDb.TABLE_NAME_ITEM,
+            db.delete(TemporaryRecordItemDb.TABLE_NAME_ITEM,
                     TemporaryRecordItemDb.COLUMN_TITLE + "=?",
-                    new String[]{ String.valueOf( item.getTempTitle())});
+                    new String[]{String.valueOf(item.getTempTitle())});
         } finally {
             db.close();
         }
@@ -118,7 +118,7 @@ public class TemporaryDBAccess {
         String searchColumn = null;
 
         /* 検索する条件を設定 */
-        int searchRowId = TemporaryRecordItemDb.getTempItemSearchRowId();
+        //int searchRowId = TemporaryRecordItemDb.getTempItemSearchRowId();
         String searchTitle = TemporaryRecordItemDb.getTempItemSearchTitle();
         String searchDNA = TemporaryRecordItemDb.getTempItemSearchDNA();
         String searchKind = TemporaryRecordItemDb.getTempItemSearchKind();
@@ -126,11 +126,29 @@ public class TemporaryDBAccess {
         int searchPosition = TemporaryRecordItemDb.getTempItemSearchPosition();
 
         if( searchWord == true ){
-            if( searchNikki.length() > 0 ){
-                searchCulmn = (TemporaryRecordItemDb.COLUMN_ITEMNIKKI + " like '%" + searchNikki + "%' ").toString();
+            if( searchTitle.length() > 0 ){
+
+                searchColumn = (TemporaryRecordItemDb.COLUMN_TITLE + " = '" + searchTitle + "' ");
+
+            }else if( searchDNA.length() > 0 ){
+
+                searchColumn = (RecordItemDb.COLUMN_DNA + " = '" + searchDNA + "' ");
+
+            } else if( searchKind.length() > 0 ){
+
+                searchColumn = (RecordItemDb.COLUMN_KIND + " = '" + searchKind + "' ");
+
+            } else if( searchMemo.length() > 0){
+
+                searchColumn = (RecordItemDb.COLUMN_MEMO + " = '" + searchMemo + "' ");
+
+            }else{
+
+                searchColumn = (TemporaryRecordItemDb.COLUMN_POSITION + " = '" + searchPosition + "' ");
             }
+
         }
-        else{
+        /*else{
             if( searchHi == null ){
                 searchCulmn =TemporaryRecordItemDb.COLUMN_ITEMNEN + " = '" + searchNen + "' AND " +
                         TemporaryRecordItemDb.COLUMN_ITEMTUKI + " = '" + searchTuki + "' ";
@@ -148,7 +166,7 @@ public class TemporaryDBAccess {
 
             query = "select * " +
                     " from " + TemporaryRecordItemDb.TABLE_NAME_ITEM +
-                    " where " + searchCulmn + ";";
+                    " where " + searchColumn + ";";
 
             Cursor cursor = db.rawQuery(query, null);
 
@@ -175,6 +193,7 @@ public class TemporaryDBAccess {
         item.setTempDNA(cursor.getString(2));
         item.setTempKind(cursor.getString(3));
         item.setTempMemo(cursor.getString(4));
+        item.setTempPosition((int) cursor.getLong(5));
         return item;
     }
 

@@ -24,6 +24,7 @@ public class TemporaryDbOpenHelper extends SQLiteOpenHelper{
             database.execSQL("CREATE TABLE "
                     + TemporaryRecordItemDb.TABLE_NAME_ITEM + "("
                     /*+ TemporaryRecordItemDb.COLUMN_PASS + " TEXT, "*/
+                    + TemporaryRecordItemDb.COLUMN_ROWID + " integer primary key autoincrement not null, "
                     + TemporaryRecordItemDb.COLUMN_TITLE + " TEXT NOT NULL, "
                     + TemporaryRecordItemDb.COLUMN_DNA + " TEXT NOT NULL, "
                     + TemporaryRecordItemDb.COLUMN_KIND + " TEXT NOT NULL, "
