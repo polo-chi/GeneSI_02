@@ -46,8 +46,10 @@ public class AddElement extends Activity {
                     kind = "2";
                 }
 
-                AsyncDB addDB = new AsyncDB();
-                addDB.setPassByAsyncDB(strBrickTitle, strBrickDNA, kind, strBrickMemo);
+                //AsyncDB addDB = new AsyncDB();
+                //addDB.setPassByAsyncDB(strBrickTitle, strBrickDNA, kind, strBrickMemo);
+
+
             }
         });
 

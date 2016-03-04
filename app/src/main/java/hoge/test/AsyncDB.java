@@ -32,7 +32,7 @@ public class AsyncDB {
     //DBにデータを追加しパスを得る
     public void setPassByAsyncDB(String brickTitle, String brickDNA, String brickKind, String brickMemo){
 
-        params.put(seq, brickTitle+","+brickDNA+","+brickKind+","+brickMemo); //送るパラメータ
+        params.put(seq,"1,"+ brickTitle+","+brickDNA+","+brickKind+","+brickMemo); //送るパラメータ
 
         AsyncHttpClient client = new AsyncHttpClient(); //通信準備
 
@@ -75,6 +75,8 @@ public class AsyncDB {
         return passByAsyncDB;
     }
 
+
+
     //DBにアクセスし、パスからブリックの情報を得る
     public void setBrickDataByAsyncDB(String pass){
 
@@ -89,7 +91,7 @@ public class AsyncDB {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 
                 String response = new String(responseBody);
-                brickData = new String[4];
+                brickData = new String[5];
                 Pattern p = Pattern.compile("[,]");
                 brickData = p.split(response);
                 // System.out.println("Success   "+brickData[0]+brickData[1]+brickData[2]+brickData[3]);
