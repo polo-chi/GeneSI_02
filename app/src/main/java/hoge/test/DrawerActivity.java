@@ -6,11 +6,8 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 public class DrawerActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -124,12 +121,12 @@ public class DrawerActivity extends Activity
         public PlaceholderFragment() {
         }
 
-        @Override
+        /*@Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_drawer, container, false);
             return rootView;
-        }
+        }*/
 
         /*@Override
         public void onAttach(Activity activity) {
