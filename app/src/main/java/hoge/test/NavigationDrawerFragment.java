@@ -103,8 +103,8 @@ public class NavigationDrawerFragment extends Fragment {
                 android.R.id.text1,
                 new String[]{
                         "①インサートの選択",
-
-                        "②プラスミドの選択", "③保存・読み込み"
+                        "②プラスミドの選択",
+                        "③保存・読み込み"
                 }));
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
