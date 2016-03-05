@@ -13,16 +13,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import java.util.ArrayList;
@@ -46,13 +45,16 @@ public class MainActivity extends Activity
     protected AlertDialog alertDialog2;
     protected AlertDialog alertDialog3;
     protected ArrayAdapter<String> adapter;
-    protected ArrayAdapter<String> adapter2;
     protected ArrayAdapter<String> adapter3;
-    protected ArrayAdapter<String> adapter4;
-    protected int selectedIndex = 0;
     protected int selectedIndex2 = 0;
     protected int selectedIndex3 = 0;
-    protected int selectedIndex4 = 0;
+
+    SortableListView listView1;
+    SimpleAdapter simpleadapter;
+    List<Element> elementList;
+    List<Map<String, ?>> data;
+
+    int mDraggingPosition = -1;
 
     private static final String[] FROM = new String[]
             {
@@ -67,9 +69,9 @@ public class MainActivity extends Activity
     private static final List<Element> ELEMENT_LIST = new ArrayList<Element>();
 
     static {
-        ELEMENT_LIST.add(new Element(R.drawable.promoter, "Promoter A", "Promoter"));
-        ELEMENT_LIST.add(new Element(R.drawable.arrow, "C", "CDS"));
-        ELEMENT_LIST.add(new Element(R.drawable.terminater, "C", "Terminator"));
+        ELEMENT_LIST.add(new Element("Promoter", "promoter", "", 1));
+        ELEMENT_LIST.add(new Element("CDS", "cds", "", 2));
+        ELEMENT_LIST.add(new Element("Terminator", "terminator", "", 3));
     }
 
     @Override
@@ -77,12 +79,9 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drawer);
 
+        Log.d("test debug", "onCreate");
+
         /*setTitle("Promoter");
-
-        TextView t1 = (TextView)findViewById(R.id.textView9);
-        TextView t2 = (TextView)findViewById(R.id.textView10);
-        TextView t3 = (TextView)findViewById(R.id.textView13);
-
         t1.setText("Promoter");
         t2.setText("CCCCAGGCTC CCCAGCAGGC AGAAGTATGC AAAGCATGCA TCTCAATTAG TCAGCAACCA GGTGTGGAAA AGTCCCCAGG CTCCCCAGCA GGCAGAAGTA TGCAAAGCAT GCATCTCAAT TAGTCAGCAA CCATAGTCCC GCCCCTAACT CCGCCCATCC CGCCCCTAAC TCCGCCCAGT TCCGCCCATT CTCCGCCCCA TGGCTGACTA ATTTTTTTTA TTTATGCAGA GGCCGAGGCC GCCTCGGCCT CTGAGCTA");
         t3.setText("SV40 promoter");*/
@@ -98,26 +97,7 @@ public class MainActivity extends Activity
         for (String item : items) {
             adapter.add(item);
         }
-
         Spinner spinner = (Spinner)findViewById(R.id.spinner);
-        // SpinnerにAdapterをセット
-        spinner.setAdapter(adapter);
-        // 選択する要素位置の指定
-        spinner.setSelection(0);
-
-// アダプタの生成(選択済のアイテムを表示するレイアウトを指定)
-        ArrayAdapter<String> adapte2r = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item);
-        // ドロップダウンリストのアイテム表示レイアウトを指定
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // リスト内の要素を配列指定
-        String[] items2 = new String[] { "pUASP", "pBSSK-", "pBSSK+", "pCMV2"};
-        // アダプタに要素を追加
-        for (String item : items) {
-            adapter.add(item);
-        }
-        // Spinnerオブジェクト生成
-       Spinner spinner2 = (Spinner)findViewById(R.id.spinner2);
         // SpinnerにAdapterをセット
         spinner.setAdapter(adapter);
         // 選択する要素位置の指定
@@ -132,28 +112,34 @@ public class MainActivity extends Activity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice);
         adapter3 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice);
 
-        final List<Element> elementList = new ArrayList<Element>(ELEMENT_LIST);
+        elementList = new ArrayList<Element>(ELEMENT_LIST);
 
-        List<Map<String, ?>> data = elementListToMapList(elementList);
+        data = elementListToMapList(elementList);
         int layoutResourceId = R.layout.element_for_simple_adapter;
 
-        SimpleAdapter simpleadapter;
         simpleadapter = new SimpleAdapter(this, data, layoutResourceId, FROM, TO);
 
-        ListView listView1 = (ListView) findViewById(R.id.listView);
+        listView1 = (SortableListView) findViewById(R.id.listView);
         listView1.setAdapter(simpleadapter);
+
+        listView1.setDragListener(new DragListener());
+        listView1.setSortable(false);
 
         listView1.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         listView1.setItemChecked(0, true);
 
+        int i = 0, end = ELEMENT_LIST.size();
+        Element add;
+        for(i =0; i < end; i++)
+        {
+            add = ELEMENT_LIST.get(i);
+            adapter.add(add.getNameElement());
+            adapter3.add(add.getNameElement());
+        }
 
-        /*adapter3.add("要素A");
-        adapter3.add("要素B");
-        adapter3.add("要素C");
-        adapter3.add("要素D");*/
 
         Button = (Button) findViewById(R.id.button);
         Button2 = (Button) findViewById(R.id.button2);
@@ -171,12 +157,16 @@ public class MainActivity extends Activity
             }
         });
 
-        Button2.setOnClickListener(new View.OnClickListener() //　入れ替えボタンを押した時の処理
+        Button2.setOnClickListener(new View.OnClickListener() //　編集ボタンを押した時の処理
         {
             @Override
             public void onClick(View v)
             {
-
+                AlertDialog.Builder builder2 = new AlertDialog.Builder(MainActivity.this);
+                builder2.setTitle("編集するブリック");
+                builder2.setSingleChoiceItems(adapter, selectedIndex2, onDialogClickListener2);
+                alertDialog2 = builder2.create();
+                alertDialog2.show();
             }
         });
 
@@ -185,32 +175,26 @@ public class MainActivity extends Activity
             @Override
             public void onClick(View v)
             {
-
+                AlertDialog.Builder builder3 = new AlertDialog.Builder(MainActivity.this);
+                builder3.setTitle("削除するブリック");
+                builder3.setSingleChoiceItems(adapter, selectedIndex3, onDialogClickListener3);
+                alertDialog3 = builder3.create();
+                alertDialog3.show();
             }
         });
 
-        Button4.setOnClickListener(new View.OnClickListener() //
+        Button4.setOnClickListener(new View.OnClickListener() //入れ替えボタンを押したときの処理
         {
             @Override
-            public void onClick(View v)
-            {
-
-            }
-        });
-
-        listView1.setOnItemClickListener(new AdapterView.OnItemClickListener() // リスト要素選択時の処理
-        {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-            }
-        });
-
-        listView1.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) // リスト要素長押し時の処理
-            {
-                // ここに処理を記述
-                return false;
+            public void onClick(View v) {
+                if(listView1.getSortable() == true)
+                {
+                    listView1.setSortable(false);
+                }
+                else
+                {
+                    listView1.setSortable(true);
+                }
             }
         });
     }
@@ -231,35 +215,12 @@ public class MainActivity extends Activity
         return map;
     }
 
-
-    private View.OnClickListener onClickListener2 = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            AlertDialog.Builder builder2 = new AlertDialog.Builder(MainActivity.this);
-            builder2.setTitle("");
-            builder2.setSingleChoiceItems(adapter2, selectedIndex2, onDialogClickListener2);
-            alertDialog2 = builder2.create();
-            alertDialog2.show();
-        }
-    };
-
-    private View.OnClickListener onClickListener3 = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            AlertDialog.Builder builder3 = new AlertDialog.Builder(MainActivity.this);
-            builder3.setTitle("どれを削除しますか");
-            builder3.setSingleChoiceItems(adapter3, selectedIndex3, onDialogClickListener3);
-            alertDialog3 = builder3.create();
-            alertDialog3.show();
-        }
-    };
-
     private DialogInterface.OnClickListener onDialogClickListener2 = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             // AlertDialogで選択された内容を保持
             selectedIndex2 = which;
-            Button2.setText(adapter2.getItem(which));
+            Button2.setText(adapter.getItem(which));
             alertDialog2.dismiss();
         }
     };
@@ -269,10 +230,54 @@ public class MainActivity extends Activity
         public void onClick(DialogInterface dialog, int which) {
             // AlertDialogで選択された内容を保持
             selectedIndex3 = which;
-            Button3.setText(adapter3.getItem(which));
+
+            AlertDialog.Builder builder_check = new AlertDialog.Builder(MainActivity.this);
+            builder_check.setTitle("確認");
+            builder_check.setMessage(adapter.getItem(which) + "を削除しますか？");
+            builder_check.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    ELEMENT_LIST.remove(which);
+
+                    /*List<Element> clone = new ArrayList<Element>();
+                    clone = ELEMENT_LIST;
+                    int end = clone.size();
+
+                    ELEMENT_LIST.clear();
+                    int i;
+*/
+                    int i, end = ELEMENT_LIST.size();
+                    Element add;
+                    for(i =0; i < end; i++)
+                    {
+                        add = ELEMENT_LIST.get(i);
+
+                        System.out.println(add.getNameElement());
+                    }
+
+                    /*if (which == 1) {
+                        for (i = 2; i < end; i++) {
+                            ELEMENT_LIST.add(clone.get(i));
+                        }
+                    } else if (which == end) {
+
+                    } else {
+                        for (i = 0; i < which - 1; i++) {
+                            ELEMENT_LIST.add(clone.get(i));
+                        }
+                        for (i = which + 1; i < end; i++) {
+                            ELEMENT_LIST.add(clone.get(i));
+                        }
+                    }*/
+                }
+            });
+
+            builder_check.setNegativeButton("Cancel", null);
+            builder_check.show();
             alertDialog3.dismiss();
         }
     };
+
 
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -305,7 +310,8 @@ public class MainActivity extends Activity
         Intent intent2 = new Intent();
         System.out.println(position);
 
-        switch (position)
+        int pos = position;
+        switch (pos)
         {
             case 0:
                 System.out.println(position);
@@ -313,10 +319,12 @@ public class MainActivity extends Activity
             case 1:
                 intent2.setClassName("hoge.test", "hoge.test.DetailElement");
                 startActivity(intent2);
+                position = 1;
                 break;
             case 2:
                 intent2.setClassName("hoge.test", "hoge.test.ProducePass");
                 startActivity(intent2);
+                position = 2;
                 break;
         }
     }
@@ -379,6 +387,67 @@ public class MainActivity extends Activity
             super.onAttach(activity);
             ((MainActivity) activity).onSectionAttached(
                     getArguments().getInt(ARG_SECTION_NUMBER));
+        }
+    }
+
+    class DragListener extends SortableListView.SimpleDragListener {
+        @Override
+        public int onStartDrag(int position) {
+            mDraggingPosition = position;
+            listView1.invalidateViews();
+            return position;
+        }
+
+        @Override
+        public int onDuringDrag(int positionFrom, int positionTo) {
+            if (positionFrom < 0 || positionTo < 0
+                    || positionFrom == positionTo) {
+                return positionFrom;
+            }
+            int i;
+            if (positionFrom < positionTo) {
+                final int min = positionFrom;
+                final int max = positionTo;
+                final Element tmpElement =  elementList.get(min);
+                final Map tmpData = data.get(min);
+                i = min;
+                while (i < max) {
+                    Log.d("TEST_D", Integer.toString(i));
+                    elementList.set(i, elementList.get(i + 1));
+                    data.set(i, data.get(i + 1));
+                    i++;
+                }
+                elementList.set(max, tmpElement);
+                data.set(max, tmpData);
+            } else if (positionFrom > positionTo) {
+                final int min = positionTo;
+                final int max = positionFrom;
+                final Element tmpElement = elementList.get(max);
+                final Map tmpData = data.get(max);
+                i = max;
+                while (i > min) {
+                    Log.d("TEST_D", Integer.toString(i));
+                    elementList.set(i, elementList.get(i - 1));
+                    data.set(i, data.get(i - 1));
+                    i--;
+                }
+                elementList.set(min, tmpElement);
+                data.set(min, tmpData);
+            }
+            mDraggingPosition = positionTo;
+
+            //int layoutResourceId = R.layout.element_for_simple_adapter;
+
+            simpleadapter.notifyDataSetChanged();
+            //listView1.invalidateViews();
+            return positionTo;
+        }
+
+        @Override
+        public boolean onStopDrag(int positionFrom, int positionTo) {
+            mDraggingPosition = -1;
+            simpleadapter.notifyDataSetChanged();
+            return super.onStopDrag(positionFrom, positionTo);
         }
     }
 }

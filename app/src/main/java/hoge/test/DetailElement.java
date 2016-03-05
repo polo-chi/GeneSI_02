@@ -3,7 +3,6 @@ package hoge.test;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,14 +10,14 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +32,8 @@ public class DetailElement extends Activity
 
     private static final String KEY_NAME_ELEMENT = "name_element";
     private static final String KEY_IMAGE_ID = "image_id";
+
+    private String plusmid;
 
     protected Button Button;
 
@@ -49,9 +50,9 @@ public class DetailElement extends Activity
     private static final List<Element> ELEMENT_LIST = new ArrayList<Element>();
 
     static {
-        ELEMENT_LIST.add(new Element(R.drawable.promoter, "Promoter A", "Promoter"));
-        ELEMENT_LIST.add(new Element(R.drawable.arrow, "C", "CDS"));
-        ELEMENT_LIST.add(new Element(R.drawable.terminater, "C", "Terminator"));
+        ELEMENT_LIST.add(new Element("Promoter", "promoter", "", 1));
+        ELEMENT_LIST.add(new Element("CDS", "cds", "", 2));
+        ELEMENT_LIST.add(new Element("Terminator", "terminator", "", 3));
     }
 
     @Override
@@ -81,23 +82,82 @@ public class DetailElement extends Activity
         listView1.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         listView1.setItemChecked(0, true);
 
+        // アダプタの生成(選択済のアイテムを表示するレイアウトを指定)
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item);
+        // ドロップダウンリストのアイテム表示レイアウトを指定
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // リスト内の要素を配列指定
+        String[] items = new String[] { "pUASP", "pBSSK-", "pBSSK+", "pCMV2"};
+        // アダプタに要素を追加
+        for (String item : items) {
+            adapter.add(item);
+        }
+        // Spinnerオブジェクト生成
+        final Spinner spinner2 = (Spinner)findViewById(R.id.spinner2);
+        // SpinnerにAdapterをセット
+        spinner2.setAdapter(adapter);
+        // 選択する要素位置の指定
+        spinner2.setSelection(0);
+
         Button btnDrawPlasmid = (Button)findViewById(R.id.button5);
+
+
+        final TemporaryDBAccess dbAccess = new TemporaryDBAccess(this);
 
         //プラスミドマップを描くボタンを押した時の処理
         btnDrawPlasmid.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
 
+                String select_plus = (String)spinner2.getSelectedItem();
+
+                if(select_plus== "pUASP") {
+
+                    plusmid = "puasp";
+
+                } else if(select_plus == "pBSSK-") {
+
+                    plusmid = "pbssk_minus";
+
+                } else if(select_plus == "pBSSK+") {
+
+                    plusmid = "pbssk_plus";
+
+                } else {
+
+                    plusmid = "pcmv2";
+
+                }
+
                 AsyncDB addInsertDB = new AsyncDB();
                 String insertData = null;
                 String insertKey;
                 Insert insert = new Insert();
                 //Temporary.dbに検索をかけてinsertDataを取得する
+                TemporaryRecordItemDb searchBrick = new TemporaryRecordItemDb();
+
+
                 //forで回す？
+                for(int i =0;i < dbAccess.numItem();i++){
+                    //String position = String.valueOf(i);
+                    searchBrick.setTempItemSearchPosition(i);
+
+                    List list = dbAccess.list_search_item();
+                    String[][] array = (String[][])list.toArray(new String[0]);
+
+                    if(i == 0){
+                        insertData = "1,"+array[0][1]+","+array[0][2]+","+array[0][3]+","+array[0][4];
+                    }else{
+                        insertData = insertData + "/1,"+array[0][1]+","+array[0][2]+","+array[0][3]+","+array[0][4];
+                    }
+
+                }
                 //Insertのkey(pass)を取得
-                //addInsertDB.setPassByAsyncDB(insertData);
-                //insertKey = addInsertDB.getPassByAsyncDB;
-                //insert.drawPlasmidMap(insertKey, plasmid);
+                addInsertDB.setPassByAsyncDB(insertData);
+                insertKey = addInsertDB.getPassByAsyncDB();
+                insert.drawPlasmidMap(insertKey, plusmid);
 
             }
 
@@ -245,14 +305,12 @@ public class DetailElement extends Activity
         mDragString = string;
         mAdapter.notifyDataSetChanged();
     }
-
     public void stopDrag() {
         mPosition = -1;
         mSortable = false;
         mDragString = null;
         mAdapter.notifyDataSetChanged();
     }
-
     /**
      * ViewHolderパターン
      */
@@ -260,49 +318,39 @@ public class DetailElement extends Activity
         TextView title;
         TextView handle;
     }
-
-
 //
-
     public class MyArrayAdapter extends ArrayList<Element> {
         private ArrayList<String> mStrings = new ArrayList<String>();
         private LayoutInflater mInflater;
         private int mLayout;
-
         public MyArrayAdapter(Context context, int textViewResourceId) {
             super(context, textViewResourceId);
             this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             this.mLayout = textViewResourceId;
         }
-
         @Override
         public void add(String row) {
             super.add(row);
             mStrings.add(row);
         }
-
         @Override
         public void insert(String row, int position) {
             super.insert(row, position);
             mStrings.add(position, row);
         }
-
         @Override
         public void remove(String row) {
             super.remove(row);
             mStrings.remove(row);
         }
-
         @Override
         public void clear() {
             super.clear();
             mStrings.clear();
         }
-
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             ViewHolder holder;
-
             View view = convertView;
             if (view == null) {
                 view = mInflater.inflate(this.mLayout, null);
@@ -314,11 +362,8 @@ public class DetailElement extends Activity
             } else {
                 holder = (ViewHolder) view.getTag();
             }
-
             final String string = mStrings.get(position);
-
             holder.title.setText(string);
-
             /**
              * ドラッグハンドルのタップでソートを開始します
              * onClickでは指を離すまでイベントが発火しないのでドラッグ出来ません
@@ -333,7 +378,6 @@ public class DetailElement extends Activity
                     return false;
                 }
             });
-
             /**
              * ドラッグ行のハイライトです、力技ですね。
              */
@@ -342,7 +386,6 @@ public class DetailElement extends Activity
             } else {
                 view.setBackgroundColor(Color.TRANSPARENT);
             }
-
             return view;
         }
     }

@@ -4,27 +4,20 @@ package hoge.test;
  * MainActivityとかでListViewを入れ子にするときに使う
  */
 
-import android.widget.Checkable;
-import android.widget.RadioButton;
+public class Element {
 
-public class Element implements Checkable{
-
-    private final String nameComponent;
     private final String nameElement;
-    private final int imageID;
+    private int imageID;
+    private final int position;
+    private final String property;
+    private final String memo;
 
-    private RadioButton mRadioButton;
-
-   public Element (int image, String component, String element)
+    public Element (String element, String pro, String note, int pos)
     {
-        this.nameComponent = component;
         this.nameElement = element;
-        this.imageID = image;
-    }
-
-    public String getNameComponent()
-    {
-        return  nameComponent;
+        this.property = pro;
+        this.memo = note;
+        this.position = pos;
     }
 
     public String getNameElement()
@@ -34,30 +27,34 @@ public class Element implements Checkable{
 
     public int getImageID()
     {
+        if(getProperty() == "promoter")
+        {
+            imageID = R.drawable.promoter;
+        }
+        else if(getProperty() == "cds")
+        {
+            imageID = R.drawable.arrow;
+        }
+        if(getProperty() == "terminator")
+        {
+            imageID = R.drawable.terminater;
+        }
+
         return imageID;
     }
-
-    @Override
-    public boolean isChecked()
+    public String getProperty()
     {
-        return mRadioButton.isChecked();
+        return property;
     }
 
-    @Override
-    public void setChecked(boolean checked)
+    public  String getMemo()
     {
-        if (isChecked() == true) {
-            mRadioButton.setChecked(false);
-        }
-        else
-        {
-            mRadioButton.setChecked(true);
-        }
+        return memo;
     }
 
-    @Override
-    public void toggle()
+    public  int getPosition()
     {
-
+        return position;
     }
+
 }

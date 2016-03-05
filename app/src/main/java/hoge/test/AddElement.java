@@ -1,6 +1,8 @@
 package hoge.test;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,10 +15,16 @@ import android.widget.TextView;
  */
 public class AddElement extends Activity {
 
+    int cntAdd = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_element);
+
+       // TemporaryDbOpenHelper dbOpenHelper = new TemporaryDbOpenHelper(this);
+        //SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        final TemporaryDBAccess dbAccess = new TemporaryDBAccess(this);
 
         Button btnAdd = (Button) findViewById(R.id.button);
 
@@ -36,6 +44,10 @@ public class AddElement extends Activity {
                 String strBrickDNA = etxtBrickDNA.getText().toString();
                 String strBrickMemo = etxtBrickMemo.getText().toString();
 
+                Brick brk = new Brick();
+                brk.setPlaneText(strBrickDNA);
+                strBrickDNA = brk.getPlaneText();
+
                 String kind = new String();
 
                 if (rbtn1.isChecked() == true) {
@@ -45,6 +57,27 @@ public class AddElement extends Activity {
                 } else {
                     kind = "2";
                 }
+
+                cntAdd++;
+
+                TemporaryRecordItemDb newBrick = new TemporaryRecordItemDb();
+                newBrick.setTempTitle(strBrickTitle);
+                newBrick.setTempDNA(strBrickDNA);
+                newBrick.setTempKind(kind);
+                newBrick.setTempMemo(strBrickMemo);
+                newBrick.setTempPosition(cntAdd);
+                dbAccess.save_item(newBrick);
+
+                etxtBrickTitle.setText("");
+                etxtBrickDNA.setText("");
+                etxtBrickMemo.setText("");
+
+
+
+                Intent intent = new Intent();
+                intent.setClassName("hoge.test", "hoge.test.MainActivity");
+                startActivity(intent);
+
 
                 //AsyncDB addDB = new AsyncDB();
                 //addDB.setPassByAsyncDB(strBrickTitle, strBrickDNA, kind, strBrickMemo);

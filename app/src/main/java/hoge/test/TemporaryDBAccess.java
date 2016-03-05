@@ -37,9 +37,10 @@ public class TemporaryDBAccess {
             int rowId = item.getTempRowId();
 
             if( rowId == 0){
-                db.insert(TemporaryRecordItemDb.TABLE_NAME_ITEM,
+               rowId = (int) db.insert(TemporaryRecordItemDb.TABLE_NAME_ITEM,
                         null,
                         values);
+
             }
             else{
                 db.update( TemporaryRecordItemDb.TABLE_NAME_ITEM
@@ -111,7 +112,7 @@ public class TemporaryDBAccess {
     /**
      * 検索
      */
-    public List list_search_item(TemporaryRecordItemDb record, boolean searchWord ) {
+    public List list_search_item(/*TemporaryRecordItemDb record, boolean searchWord */) {
         SQLiteDatabase db = helper.getReadableDatabase();
 
         List itemList;
@@ -125,7 +126,7 @@ public class TemporaryDBAccess {
         String searchMemo = TemporaryRecordItemDb.getTempItemSearchMemo();
         int searchPosition = TemporaryRecordItemDb.getTempItemSearchPosition();
 
-        if( searchWord == true ){
+       // if( searchWord ){
             if( searchTitle.length() > 0 ){
 
                 searchColumn = (TemporaryRecordItemDb.COLUMN_TITLE + " = '" + searchTitle + "' ");
@@ -147,7 +148,7 @@ public class TemporaryDBAccess {
                 searchColumn = (TemporaryRecordItemDb.COLUMN_POSITION + " = '" + searchPosition + "' ");
             }
 
-        }
+        //}
         /*else{
             if( searchHi == null ){
                 searchCulmn =TemporaryRecordItemDb.COLUMN_ITEMNEN + " = '" + searchNen + "' AND " +
@@ -180,6 +181,25 @@ public class TemporaryDBAccess {
             db.close();
         }
         return itemList;
+    }
+
+    public int numItem(){
+
+        int numItem = 0;
+        SQLiteDatabase db = helper.getReadableDatabase();
+        Cursor cursor = db
+                .rawQuery("select * from "+TemporaryRecordItemDb.TABLE_NAME_ITEM, new String[] {});
+
+        // 方式2：whileを使ったループ
+        boolean next = cursor.moveToFirst();
+        while (next) {
+            // ・・・処理
+            numItem++;
+            // 次のレコード
+            next = cursor.moveToNext();
+        }
+        return numItem;
+
     }
 
     /**

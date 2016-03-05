@@ -29,7 +29,7 @@ public class Insert {
     }
 
 
-    public void setInsertKey(){
+   /* public void setInsertKey(){
 
         String insertData = null;
 
@@ -39,6 +39,6 @@ public class Insert {
 
         return InsertKey;
 
-    }
+    }*/
 
     }

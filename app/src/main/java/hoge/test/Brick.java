@@ -13,6 +13,7 @@ public class Brick {
     private static StringBuilder upperPlaneText;
     private static String tidyUpText;
     private static String complementText;
+    private static String reverseComplementText;
 
     public void setPlaneText(String defText){
         //defaultText = new String();
@@ -40,19 +41,31 @@ public class Brick {
     }
 
     public void setComplementText(String tuText){
-        StringBuilder sbTidyUpText = new StringBuilder(tuText);
-        String reverseTUText = sbTidyUpText.reverse().toString();
+        String TidyUpText = new String(tuText);
+       // String reverseTUText = sbTidyUpText.toString();
 
-        String replaceReverseTUText = reverseTUText.replace("A", "t");
-        replaceReverseTUText =  replaceReverseTUText.replace("T", "a");
-        replaceReverseTUText =  replaceReverseTUText.replace("C", "g");
-        replaceReverseTUText =  replaceReverseTUText.replace("G", "c");
+        String replaceTUText = TidyUpText.replace("A", "t");
+        replaceTUText =  replaceTUText.replace("T", "a");
+        replaceTUText =  replaceTUText.replace("C", "g");
+        replaceTUText =  replaceTUText.replace("G", "c");
 
-        complementText =  replaceReverseTUText.toUpperCase();
+        complementText =  replaceTUText.toUpperCase();
     }
 
     public static String getComplementText(){
         return complementText;
+    }
+
+    public void setReverseComplementText(String compText){
+        StringBuilder sbComplementText = new StringBuilder(compText);
+        String reverseComplementText = sbComplementText.reverse().toString();
+
+
+        reverseComplementText =  reverseComplementText.toUpperCase();
+    }
+
+    public static String getReverseComplementText(){
+        return reverseComplementText;
     }
 
 }

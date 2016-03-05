@@ -58,7 +58,9 @@ public class TemporaryRecordItemDb implements Serializable{
     public void setTempMemo(String memo) { this.memo = memo; }
 
     public int getTempPosition() { return position; }
-    public void setTempPosition(int position) { this.position = position; }
+    public void setTempPosition(int position) {
+        this.position = position;
+    }
 
    // public static String getTempItemSearchPass() { return itemsearchPass; }
     //public void setTempItemSearchPass(String paramPass) { TemporaryRecordItemDb.itemsearchPass = paramPass; }
