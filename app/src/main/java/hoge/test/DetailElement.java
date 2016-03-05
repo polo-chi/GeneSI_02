@@ -3,7 +3,9 @@ package hoge.test;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -157,7 +159,18 @@ public class DetailElement extends Activity
                 //Insertのkey(pass)を取得
                 addInsertDB.setPassByAsyncDB(insertData);
                 insertKey = addInsertDB.getPassByAsyncDB();
-                insert.drawPlasmidMap(insertKey, plusmid);
+                System.out.println("beforedraw");
+
+               Intent i =insert.drawPlasmidMap(insertKey, plusmid);
+               // String uriString = "http://www.gene-design.kit.ac.jp";
+                //Uri uri = Uri.parse(uriString);
+              //  Intent i = new Intent(Intent.ACTION_VIEW,uri);
+                //Intent i = new Intent(Intent.ACTION_VIEW);
+                //i.setData(uri);
+                //i.setClassName("com.android.browser", "com.android.browser.BrowserActivity");
+                //i.setComponent(new ComponentName("com.android.browser", "com.android.browser.BrowserActivity"));
+                startActivity(i);
+
 
             }
 
